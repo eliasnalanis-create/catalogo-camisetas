@@ -8,7 +8,7 @@
 <style>
 
 body{
-  font-family: 'Arial', sans-serif;
+  font-family: Arial, sans-serif;
   margin:0;
   background:#f5f7fa;
 }
@@ -31,6 +31,8 @@ box-shadow:0 2px 10px rgba(0,0,0,.08);
 height:50px;
 }
 
+/* BUSCADOR */
+
 .buscador{
 flex:1;
 display:flex;
@@ -44,13 +46,6 @@ padding:12px;
 border-radius:10px;
 border:1px solid #ddd;
 background:#f9f9f9;
-transition:0.2s;
-}
-
-.buscador input:focus{
-outline:none;
-border:1px solid #999;
-background:white;
 }
 
 .acciones{
@@ -64,15 +59,12 @@ border:none;
 border-radius:8px;
 cursor:pointer;
 font-weight:bold;
-transition:0.2s;
 }
+
+/* BOTONES */
 
 #guardarBtn{
 background:#e0e0e0;
-}
-
-#guardarBtn:hover{
-background:#cfcfcf;
 }
 
 .adminBtn{
@@ -80,8 +72,13 @@ background:#111;
 color:white;
 }
 
-.adminBtn:hover{
-background:#333;
+/* 🔒 ADMIN OCULTO */
+.adminBtn{
+display:none;
+}
+
+.adminVisible .adminBtn{
+display:block;
 }
 
 /* PANEL ADMIN */
@@ -105,7 +102,7 @@ gap:25px;
 padding:25px;
 }
 
-/* TARJETA PRODUCTO */
+/* PRODUCTO */
 
 .producto{
 background:white;
@@ -122,8 +119,6 @@ transform:translateY(-6px);
 box-shadow:0 8px 25px rgba(0,0,0,.15);
 }
 
-/* IMAGEN */
-
 .producto img{
 width:100%;
 height:260px;
@@ -139,7 +134,6 @@ padding:15px;
 
 .info h3{
 margin:5px 0;
-font-size:18px;
 }
 
 .info p{
@@ -147,18 +141,18 @@ color:#666;
 margin:0;
 }
 
-/* BOTÓN BORRAR */
+/* BORRAR */
 
 .deleteBtn{
 position:absolute;
 top:10px;
 left:10px;
-background:#ff4d4d;
+background:red;
 color:white;
 font-size:12px;
 display:none;
-border-radius:6px;
 padding:5px 8px;
+border-radius:6px;
 }
 
 .admin .deleteBtn{
@@ -189,10 +183,7 @@ z-index:9999;
 max-width:90%;
 max-height:85%;
 border-radius:12px;
-box-shadow:0 10px 40px rgba(0,0,0,.5);
 }
-
-/* BOTONES GALERÍA */
 
 .galeriaBtns{
 margin-top:25px;
@@ -203,8 +194,8 @@ gap:20px;
 .galeriaBtns button{
 background:white;
 padding:12px 18px;
-font-weight:bold;
 border-radius:10px;
+font-weight:bold;
 }
 
 </style>
@@ -219,7 +210,7 @@ border-radius:10px;
 </div>
 
 <div class="buscador">
-<input type="text" id="buscador" placeholder="🔎 Buscar camiseta">
+<input type="text" placeholder="🔎 Buscar camiseta">
 </div>
 
 <div class="acciones">
@@ -235,9 +226,9 @@ border-radius:10px;
 
 <input id="nombre" placeholder="Nombre camiseta"><br><br>
 
-<input id="categoria" placeholder="Equipo / categoría"><br><br>
+<input id="categoria" placeholder="Equipo"><br><br>
 
-<input type="file" id="imagenes" multiple accept="image/*"><br><br>
+<input type="file" id="imagenes" multiple><br><br>
 
 <button id="addBtn">Añadir</button>
 
@@ -246,17 +237,12 @@ border-radius:10px;
 <div id="catalogo" class="catalogo"></div>
 
 <div id="visor">
-
 <img id="visorImg">
 
 <div class="galeriaBtns">
-
-<button id="prevBtn">⬅ Foto anterior</button>
-
-<button id="nextBtn">Foto siguiente ➡</button>
-
+<button id="prevBtn">⬅</button>
+<button id="nextBtn">➡</button>
 </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -265,7 +251,7 @@ border-radius:10px;
 
 document.addEventListener("DOMContentLoaded",()=>{
 
-const PASSWORD="1234"; // cámbiala
+const PASSWORD="1234"; // CAMBIA ESTO
 
 const supabaseUrl="https://ycrphtitbjvtkhbartec.supabase.co";
 const supabaseKey="sb_publishable_dCPb6B5vx6ev5i9odbOVCA_aMw5nAi8";
@@ -278,7 +264,7 @@ let admin=false;
 let fotosActuales=[];
 let fotoIndex=0;
 
-// LOGIN ADMIN
+/* LOGIN ADMIN */
 
 document.addEventListener("keydown",(e)=>{
 
@@ -289,7 +275,7 @@ const pass=prompt("Contraseña admin:");
 if(pass===PASSWORD){
 
 document.body.classList.add("adminVisible");
-alert("Admin activado 🔓");
+alert("Admin desbloqueado 🔓");
 
 }else{
 alert("Incorrecto ❌");
@@ -299,7 +285,7 @@ alert("Incorrecto ❌");
 
 });
 
-// ADMIN
+/* ACTIVAR PANEL */
 
 document.getElementById("adminBtn").onclick=()=>{
 
@@ -311,19 +297,17 @@ document.getElementById("panelAdmin").style.display=admin?"block":"none";
 
 };
 
-// AÑADIR
+/* AÑADIR */
 
 document.getElementById("addBtn").onclick=()=>{
 
-const nombre=document.getElementById("nombre").value.trim();
-const categoria=document.getElementById("categoria").value.trim();
+const nombre=document.getElementById("nombre").value;
+const categoria=document.getElementById("categoria").value;
 const files=[...document.getElementById("imagenes").files];
 
 if(!nombre||!categoria||files.length===0){
-
-alert("Completa todos los campos");
+alert("Faltan datos");
 return;
-
 }
 
 const nueva={nombre,categoria,imagenes:[]};
@@ -333,17 +317,13 @@ catalogo.push(nueva);
 let cargadas=0;
 
 files.forEach(file=>{
-
 const reader=new FileReader();
 
 reader.onload=e=>{
-
 nueva.imagenes.push(e.target.result);
-
 cargadas++;
 
 if(cargadas===files.length)render();
-
 };
 
 reader.readAsDataURL(file);
@@ -352,7 +332,7 @@ reader.readAsDataURL(file);
 
 };
 
-// GUARDAR
+/* GUARDAR */
 
 document.getElementById("guardarBtn").onclick=async()=>{
 
@@ -361,59 +341,34 @@ for(const c of catalogo){
 if(c.id) continue;
 
 const{data,error}=await supabase
-
 .from("camisetas")
-
 .insert({
-
 nombre:c.nombre,
-
 categoria:c.categoria,
-
 imagenes:c.imagenes
-
 })
-
 .select()
-
 .single();
 
 if(error){
-
-console.error(error);
-alert("Error guardando");
+alert("Error");
 return;
-
 }
 
 c.id=data.id;
-
 }
 
-alert("Guardado online ✅");
+alert("Guardado ✅");
 
 };
 
-// BORRAR
+/* BORRAR */
 
 async function borrar(id){
 
-if(!confirm("¿Borrar camiseta?"))return;
+if(!confirm("¿Borrar?"))return;
 
-const{error}=await supabase
-
-.from("camisetas")
-
-.delete()
-
-.eq("id",id);
-
-if(error){
-
-alert("Error borrando");
-return;
-
-}
+await supabase.from("camisetas").delete().eq("id",id);
 
 catalogo=catalogo.filter(c=>c.id!==id);
 
@@ -421,15 +376,11 @@ render();
 
 }
 
-// CARGAR
+/* CARGAR */
 
 async function cargar(){
 
-const{data}=await supabase
-
-.from("camisetas")
-
-.select("*");
+const{data}=await supabase.from("camisetas").select("*");
 
 catalogo=data||[];
 
@@ -437,7 +388,7 @@ render();
 
 }
 
-// RENDER
+/* RENDER */
 
 function render(){
 
@@ -448,33 +399,20 @@ cont.innerHTML="";
 catalogo.forEach(c=>{
 
 const div=document.createElement("div");
-
 div.className="producto";
 
-const img=c.imagenes?.[0]||"";
-
 div.innerHTML=`
-
 <button class="deleteBtn">🗑</button>
-
-<img src="${img}">
-
+<img src="${c.imagenes?.[0]||""}">
 <div class="info">
-
 <h3>${c.nombre}</h3>
-
 <p>${c.categoria}</p>
-
 </div>
-
 `;
 
 div.querySelector(".deleteBtn").onclick=(e)=>{
-
 e.stopPropagation();
-
 borrar(c.id);
-
 };
 
 div.onclick=()=>abrirGaleria(c.imagenes);
@@ -485,7 +423,7 @@ cont.appendChild(div);
 
 }
 
-// GALERIA
+/* GALERIA */
 
 function abrirGaleria(imgs){
 
@@ -495,54 +433,38 @@ fotoIndex=0;
 mostrarFoto();
 
 document.body.classList.add("modoGaleria");
-
 document.getElementById("visor").style.display="flex";
 
 }
 
 function mostrarFoto(){
-
 document.getElementById("visorImg").src=fotosActuales[fotoIndex];
-
 }
 
-// BOTONES
+/* BOTONES */
 
 document.getElementById("prevBtn").onclick=(e)=>{
-
 e.stopPropagation();
-
 fotoIndex--;
-
 if(fotoIndex<0)fotoIndex=fotosActuales.length-1;
-
 mostrarFoto();
-
 };
 
 document.getElementById("nextBtn").onclick=(e)=>{
-
 e.stopPropagation();
-
 fotoIndex++;
-
 if(fotoIndex>=fotosActuales.length)fotoIndex=0;
-
 mostrarFoto();
-
 };
 
-// CERRAR
+/* CERRAR */
 
 document.getElementById("visor").onclick=()=>{
-
 document.getElementById("visor").style.display="none";
-
 document.body.classList.remove("modoGaleria");
-
 };
 
-// INICIO
+/* INICIO */
 
 cargar();
 
