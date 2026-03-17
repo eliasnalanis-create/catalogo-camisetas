@@ -13,8 +13,6 @@ body{
   background:#e6f2ff;
 }
 
-/* 🔥 HEADER PRO */
-
 header{
 background:white;
 display:flex;
@@ -27,17 +25,10 @@ z-index:1000;
 box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
 
-/* LOGO IZQUIERDA */
-.logo{
-display:flex;
-align-items:center;
-}
-
 .logo img{
 height:50px;
 }
 
-/* BUSCADOR CENTRO */
 .buscador{
 flex:1;
 display:flex;
@@ -52,7 +43,6 @@ border-radius:8px;
 border:1px solid #ccc;
 }
 
-/* BOTONES DERECHA */
 .acciones{
 display:flex;
 gap:10px;
@@ -70,7 +60,14 @@ background:#222;
 color:white;
 }
 
-/* CATÁLOGO */
+/* 🔒 OCULTAMOS ADMIN POR DEFECTO */
+.adminBtn{
+display:none;
+}
+
+.adminVisible .adminBtn{
+display:block;
+}
 
 .catalogo{
 display:grid;
@@ -196,8 +193,6 @@ font-weight:bold;
 
 <div id="catalogo" class="catalogo"></div>
 
-<!-- VISOR -->
-
 <div id="visor">
 
 <img id="visorImg">
@@ -218,6 +213,8 @@ font-weight:bold;
 
 document.addEventListener("DOMContentLoaded",()=>{
 
+const PASSWORD="1234"; // 🔥 CAMBIA ESTO
+
 const supabaseUrl="https://ycrphtitbjvtkhbartec.supabase.co";
 const supabaseKey="sb_publishable_dCPb6B5vx6ev5i9odbOVCA_aMw5nAi8";
 
@@ -228,6 +225,30 @@ let admin=false;
 
 let fotosActuales=[];
 let fotoIndex=0;
+
+/* 🔒 ACTIVAR ADMIN */
+
+document.addEventListener("keydown",(e)=>{
+
+if(e.key==="a"){  // pulsas "a" para abrir login
+
+const pass=prompt("Contraseña admin:");
+
+if(pass===PASSWORD){
+
+document.body.classList.add("adminVisible");
+
+alert("Modo admin desbloqueado 🔓");
+
+}else{
+
+alert("Contraseña incorrecta ❌");
+
+}
+
+}
+
+});
 
 // ADMIN
 
