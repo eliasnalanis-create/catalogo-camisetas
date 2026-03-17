@@ -13,8 +13,6 @@ body{
   background:#f5f7fa;
 }
 
-/* HEADER */
-
 header{
 background:white;
 display:flex;
@@ -30,8 +28,6 @@ box-shadow:0 2px 10px rgba(0,0,0,.08);
 .logo img{
 height:50px;
 }
-
-/* BUSCADOR */
 
 .buscador{
 flex:1;
@@ -61,8 +57,6 @@ cursor:pointer;
 font-weight:bold;
 }
 
-/* BOTONES */
-
 #guardarBtn{
 background:#e0e0e0;
 }
@@ -81,8 +75,6 @@ display:none;
 display:block;
 }
 
-/* PANEL ADMIN */
-
 .panelAdmin{
 display:none;
 text-align:center;
@@ -93,16 +85,12 @@ border-radius:12px;
 box-shadow:0 4px 12px rgba(0,0,0,.08);
 }
 
-/* CATÁLOGO */
-
 .catalogo{
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
 gap:25px;
 padding:25px;
 }
-
-/* PRODUCTO */
 
 .producto{
 background:white;
@@ -125,23 +113,15 @@ height:260px;
 object-fit:cover;
 }
 
-/* INFO */
-
 .info{
 text-align:center;
 padding:15px;
-}
-
-.info h3{
-margin:5px 0;
 }
 
 .info p{
 color:#666;
 margin:0;
 }
-
-/* BORRAR */
 
 .deleteBtn{
 position:absolute;
@@ -251,7 +231,7 @@ font-weight:bold;
 
 document.addEventListener("DOMContentLoaded",()=>{
 
-const PASSWORD="1234"; // CAMBIA ESTO
+const PASSWORD="1234";
 
 const supabaseUrl="https://ycrphtitbjvtkhbartec.supabase.co";
 const supabaseKey="sb_publishable_dCPb6B5vx6ev5i9odbOVCA_aMw5nAi8";
@@ -264,11 +244,11 @@ let admin=false;
 let fotosActuales=[];
 let fotoIndex=0;
 
-/* LOGIN ADMIN */
+/* 🔐 NUEVO LOGIN (Ctrl + Shift + A) */
 
 document.addEventListener("keydown",(e)=>{
 
-if(e.key==="a"){
+if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==="a"){
 
 const pass=prompt("Contraseña admin:");
 
@@ -285,7 +265,7 @@ alert("Incorrecto ❌");
 
 });
 
-/* ACTIVAR PANEL */
+/* ADMIN PANEL */
 
 document.getElementById("adminBtn").onclick=()=>{
 
@@ -407,6 +387,13 @@ div.innerHTML=`
 <div class="info">
 <h3>${c.nombre}</h3>
 <p>${c.categoria}</p>
+
+<a href="https://wa.me/34600000000?text=Hola, me interesa la camiseta: ${encodeURIComponent(c.nombre)}" target="_blank">
+<button style="margin-top:10px;background:#25D366;color:white;">
+Consultar
+</button>
+</a>
+
 </div>
 `;
 
