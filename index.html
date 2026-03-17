@@ -10,8 +10,17 @@
 body{
   font-family:Arial;
   margin:0;
-  padding-top:90px; /* un poco más para compensar header */
+  padding-top:90px;
   background:#e6f2ff;
+}
+
+/* 🔥 CLASE PARA OCULTAR HEADER */
+body.modoGaleria header{
+  display:none;
+}
+
+body.modoGaleria{
+  padding-top:0; /* quitamos espacio cuando abrimos imagen */
 }
 
 header{
@@ -24,15 +33,13 @@ z-index:1000;
 box-shadow:0 2px 8px rgba(0,0,0,.15);
 }
 
-/* 🔥 LOGO ARREGLADO */
 header img{
-max-height:60px;   /* antes 150px (demasiado grande) */
+max-height:60px;
 width:auto;
 display:block;
 margin:auto;
 }
 
-/* BOTÓN ADMIN */
 .adminBtn{
 position:absolute;
 right:20px;
@@ -94,8 +101,6 @@ border-radius:6px;
 cursor:pointer;
 }
 
-/* BOTON BORRAR */
-
 .deleteBtn{
 position:absolute;
 top:10px;
@@ -110,7 +115,7 @@ display:none;
 display:block;
 }
 
-/* 🔥 VISOR ARREGLADO (IMPORTANTE) */
+/* VISOR */
 
 #visor{
 position:fixed;
@@ -123,16 +128,15 @@ display:none;
 align-items:center;
 justify-content:center;
 flex-direction:column;
-z-index:9999; /* más alto que el header */
+z-index:9999;
 }
 
 #visor img{
 max-width:90%;
-max-height:80%;
+max-height:85%;
 border-radius:10px;
 }
 
-/* BOTONES GALERÍA */
 .galeriaBtns{
 margin-top:20px;
 display:flex;
@@ -401,7 +405,7 @@ cont.appendChild(div);
 
 }
 
-// GALERIA
+// 🔥 GALERIA (CLAVE)
 
 function abrirGaleria(imgs){
 
@@ -409,6 +413,8 @@ fotosActuales=imgs;
 fotoIndex=0;
 
 mostrarFoto();
+
+document.body.classList.add("modoGaleria"); // OCULTA HEADER
 
 document.getElementById("visor").style.display="flex";
 
@@ -446,11 +452,13 @@ mostrarFoto();
 
 };
 
-// CERRAR VISOR
+// 🔥 CERRAR VISOR
 
 document.getElementById("visor").onclick=()=>{
 
 document.getElementById("visor").style.display="none";
+
+document.body.classList.remove("modoGaleria"); // VUELVE HEADER
 
 };
 
