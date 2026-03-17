@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EL PIBE DE LAS CAMISETAS</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#e6f2ff;
+}
+
+header{
+background:white;
+padding:10px;
+text-align:center;
+position:sticky;
+top:0;
+box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+
+header img{
+max-height:150px;
+}
+
+.adminBtn{
+position:absolute;
+right:20px;
+top:20px;
+padding:8px 12px;
+background:#222;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.topBar{
+display:flex;
+gap:10px;
+justify-content:center;
+padding:10px;
+background:white;
+}
+
+.catalogo{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+gap:20px;
+padding:20px;
+}
+
+.producto{
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 2px 8px rgba(0,0,0,.15);
+cursor:pointer;
+position:relative;
+}
+
+.producto img{
+width:100%;
+height:250px;
+object-fit:cover;
+}
+
+.info{
+text-align:center;
+padding:10px;
+}
+
+.panelAdmin{
+display:none;
+text-align:center;
+padding:20px;
+background:white;
+}
+
+button{
+padding:8px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* BOTON BORRAR */
+
+.deleteBtn{
+position:absolute;
+top:10px;
+left:10px;
+background:red;
+color:white;
+font-size:12px;
+display:none;
+}
+
+.admin .deleteBtn{
+display:block;
+}
+
+/* VISOR */
+
+#visor{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.9);
+display:none;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+z-index:999;
+}
+
+#visor img{
+max-width:90%;
+max-height:75%;
+}
+
+.galeriaBtns{
+margin-top:20px;
+display:flex;
+gap:20px;
+}
+
+.galeriaBtns button{
+background:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<img src="logo.png">
+
+<button class="adminBtn" id="adminBtn">Modo Admin</button>
+
+</header>
+
+<div class="topBar">
+
+<input type="text" id="buscador" placeholder="🔎 Buscar camiseta">
+
+<button id="guardarBtn">Guardar cambios</button>
+
+</div>
+
+<div id="panelAdmin" class="panelAdmin">
+
+<h3>Subir camiseta</h3>
+
+<input id="nombre" placeholder="Nombre camiseta"><br><br>
+
+<input id="categoria" placeholder="Equipo / categoría"><br><br>
+
+<input type="file" id="imagenes" multiple accept="image/*"><br><br>
+
+<button id="addBtn">Añadir</button>
+
+</div>
+
+<div id="catalogo" class="catalogo"></div>
+
+<!-- VISOR -->
+
+<div id="visor">
+
+<img id="visorImg">
+
+<div class="galeriaBtns">
+
+<button id="prevBtn">⬅ Foto anterior</button>
+
+<button id="nextBtn">Foto siguiente ➡</button>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+const supabaseUrl="https://ycrphtitbjvtkhbartec.supabase.co";
+const supabaseKey="sb_publishable_dCPb6B5vx6ev5i9odbOVCA_aMw5nAi8";
+
+const supabase=window.supabase.createClient(supabaseUrl,supabaseKey);
+
+let catalogo=[];
+let admin=false;
+
+let fotosActuales=[];
+let fotoIndex=0;
+
+
+
+// ADMIN
+
+document.getElementById("adminBtn").onclick=()=>{
+
+admin=!admin;
+
+document.body.classList.toggle("admin");
+
+document.getElementById("panelAdmin").style.display=admin?"block":"none";
+
+};
+
+
+
+// AÑADIR
+
+document.getElementById("addBtn").onclick=()=>{
+
+const nombre=document.getElementById("nombre").value.trim();
+const categoria=document.getElementById("categoria").value.trim();
+const files=[...document.getElementById("imagenes").files];
+
+if(!nombre||!categoria||files.length===0){
+
+alert("Completa todos los campos");
+return;
+
+}
+
+const nueva={nombre,categoria,imagenes:[]};
+
+catalogo.push(nueva);
+
+let cargadas=0;
+
+files.forEach(file=>{
+
+const reader=new FileReader();
+
+reader.onload=e=>{
+
+nueva.imagenes.push(e.target.result);
+
+cargadas++;
+
+if(cargadas===files.length)render();
+
+};
+
+reader.readAsDataURL(file);
+
+});
+
+};
+
+
+
+// GUARDAR
+
+document.getElementById("guardarBtn").onclick=async()=>{
+
+for(const c of catalogo){
+
+if(c.id) continue;
+
+const{data,error}=await supabase
+
+.from("camisetas")
+
+.insert({
+
+nombre:c.nombre,
+
+categoria:c.categoria,
+
+imagenes:c.imagenes
+
+})
+
+.select()
+
+.single();
+
+if(error){
+
+console.error(error);
+alert("Error guardando");
+return;
+
+}
+
+c.id=data.id;
+
+}
+
+alert("Guardado online ✅");
+
+};
+
+
+
+// BORRAR
+
+async function borrar(id){
+
+if(!confirm("¿Borrar camiseta?"))return;
+
+const{error}=await supabase
+
+.from("camisetas")
+
+.delete()
+
+.eq("id",id);
+
+if(error){
+
+alert("Error borrando");
+return;
+
+}
+
+catalogo=catalogo.filter(c=>c.id!==id);
+
+render();
+
+}
+
+
+
+// CARGAR
+
+async function cargar(){
+
+const{data}=await supabase
+
+.from("camisetas")
+
+.select("*");
+
+catalogo=data||[];
+
+render();
+
+}
+
+
+
+// RENDER
+
+function render(){
+
+const cont=document.getElementById("catalogo");
+
+cont.innerHTML="";
+
+catalogo.forEach(c=>{
+
+const div=document.createElement("div");
+
+div.className="producto";
+
+const img=c.imagenes?.[0]||"";
+
+div.innerHTML=`
+
+<button class="deleteBtn">🗑</button>
+
+<img src="${img}">
+
+<div class="info">
+
+<h3>${c.nombre}</h3>
+
+<p>${c.categoria}</p>
+
+</div>
+
+`;
+
+div.querySelector(".deleteBtn").onclick=(e)=>{
+
+e.stopPropagation();
+
+borrar(c.id);
+
+};
+
+div.onclick=()=>abrirGaleria(c.imagenes);
+
+cont.appendChild(div);
+
+});
+
+}
+
+
+
+// GALERIA
+
+function abrirGaleria(imgs){
+
+fotosActuales=imgs;
+
+fotoIndex=0;
+
+mostrarFoto();
+
+document.getElementById("visor").style.display="flex";
+
+}
+
+function mostrarFoto(){
+
+document.getElementById("visorImg").src=fotosActuales[fotoIndex];
+
+}
+
+
+
+// BOTONES
+
+document.getElementById("prevBtn").onclick=(e)=>{
+
+e.stopPropagation();
+
+fotoIndex--;
+
+if(fotoIndex<0)fotoIndex=fotosActuales.length-1;
+
+mostrarFoto();
+
+};
+
+document.getElementById("nextBtn").onclick=(e)=>{
+
+e.stopPropagation();
+
+fotoIndex++;
+
+if(fotoIndex>=fotosActuales.length)fotoIndex=0;
+
+mostrarFoto();
+
+};
+
+
+
+// CERRAR VISOR
+
+document.getElementById("visor").onclick=()=>{
+
+document.getElementById("visor").style.display="none";
+
+};
+
+
+
+// INICIO
+
+cargar();
+
+});
+
+</script>
+
+</body>
+</html>
