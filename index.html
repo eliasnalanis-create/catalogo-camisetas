@@ -8,21 +8,23 @@
 <style>
 
 body{
-  font-family:Arial;
+  font-family: 'Arial', sans-serif;
   margin:0;
-  background:#e6f2ff;
+  background:#f5f7fa;
 }
+
+/* HEADER */
 
 header{
 background:white;
 display:flex;
 align-items:center;
 justify-content:space-between;
-padding:10px 20px;
+padding:12px 25px;
 position:sticky;
 top:0;
 z-index:1000;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
+box-shadow:0 2px 10px rgba(0,0,0,.08);
 }
 
 .logo img{
@@ -37,10 +39,18 @@ justify-content:center;
 
 .buscador input{
 width:60%;
-max-width:400px;
-padding:10px;
-border-radius:8px;
-border:1px solid #ccc;
+max-width:420px;
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
+background:#f9f9f9;
+transition:0.2s;
+}
+
+.buscador input:focus{
+outline:none;
+border:1px solid #999;
+background:white;
 }
 
 .acciones{
@@ -49,68 +59,106 @@ gap:10px;
 }
 
 button{
-padding:8px 12px;
+padding:10px 14px;
 border:none;
-border-radius:6px;
+border-radius:8px;
 cursor:pointer;
+font-weight:bold;
+transition:0.2s;
+}
+
+#guardarBtn{
+background:#e0e0e0;
+}
+
+#guardarBtn:hover{
+background:#cfcfcf;
 }
 
 .adminBtn{
-background:#222;
+background:#111;
 color:white;
 }
 
-/* 🔒 OCULTAMOS ADMIN POR DEFECTO */
-.adminBtn{
-display:none;
+.adminBtn:hover{
+background:#333;
 }
 
-.adminVisible .adminBtn{
-display:block;
-}
-
-.catalogo{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-gap:20px;
-padding:20px;
-}
-
-.producto{
-background:white;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 2px 8px rgba(0,0,0,.15);
-cursor:pointer;
-position:relative;
-}
-
-.producto img{
-width:100%;
-height:250px;
-object-fit:cover;
-}
-
-.info{
-text-align:center;
-padding:10px;
-}
+/* PANEL ADMIN */
 
 .panelAdmin{
 display:none;
 text-align:center;
-padding:20px;
+padding:25px;
 background:white;
+margin:20px;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,.08);
 }
+
+/* CATÁLOGO */
+
+.catalogo{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+gap:25px;
+padding:25px;
+}
+
+/* TARJETA PRODUCTO */
+
+.producto{
+background:white;
+border-radius:16px;
+overflow:hidden;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+cursor:pointer;
+position:relative;
+transition:0.25s;
+}
+
+.producto:hover{
+transform:translateY(-6px);
+box-shadow:0 8px 25px rgba(0,0,0,.15);
+}
+
+/* IMAGEN */
+
+.producto img{
+width:100%;
+height:260px;
+object-fit:cover;
+}
+
+/* INFO */
+
+.info{
+text-align:center;
+padding:15px;
+}
+
+.info h3{
+margin:5px 0;
+font-size:18px;
+}
+
+.info p{
+color:#666;
+margin:0;
+}
+
+/* BOTÓN BORRAR */
 
 .deleteBtn{
 position:absolute;
 top:10px;
 left:10px;
-background:red;
+background:#ff4d4d;
 color:white;
 font-size:12px;
 display:none;
+border-radius:6px;
+padding:5px 8px;
 }
 
 .admin .deleteBtn{
@@ -140,19 +188,23 @@ z-index:9999;
 #visor img{
 max-width:90%;
 max-height:85%;
-border-radius:10px;
+border-radius:12px;
+box-shadow:0 10px 40px rgba(0,0,0,.5);
 }
 
+/* BOTONES GALERÍA */
+
 .galeriaBtns{
-margin-top:20px;
+margin-top:25px;
 display:flex;
 gap:20px;
 }
 
 .galeriaBtns button{
 background:white;
-padding:10px 15px;
+padding:12px 18px;
 font-weight:bold;
+border-radius:10px;
 }
 
 </style>
@@ -213,7 +265,7 @@ font-weight:bold;
 
 document.addEventListener("DOMContentLoaded",()=>{
 
-const PASSWORD="1234"; // 🔥 CAMBIA ESTO
+const PASSWORD="1234"; // cámbiala
 
 const supabaseUrl="https://ycrphtitbjvtkhbartec.supabase.co";
 const supabaseKey="sb_publishable_dCPb6B5vx6ev5i9odbOVCA_aMw5nAi8";
@@ -226,24 +278,21 @@ let admin=false;
 let fotosActuales=[];
 let fotoIndex=0;
 
-/* 🔒 ACTIVAR ADMIN */
+// LOGIN ADMIN
 
 document.addEventListener("keydown",(e)=>{
 
-if(e.key==="a"){  // pulsas "a" para abrir login
+if(e.key==="a"){
 
 const pass=prompt("Contraseña admin:");
 
 if(pass===PASSWORD){
 
 document.body.classList.add("adminVisible");
-
-alert("Modo admin desbloqueado 🔓");
+alert("Admin activado 🔓");
 
 }else{
-
-alert("Contraseña incorrecta ❌");
-
+alert("Incorrecto ❌");
 }
 
 }
