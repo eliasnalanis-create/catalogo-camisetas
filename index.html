@@ -8,145 +8,174 @@
 <style>
 
 body{
-  font-family: Arial, sans-serif;
+  font-family:Arial;
   margin:0;
-  background:#f5f7fa;
+  background:#eef3f8;
 }
+
+/* HEADER */
 
 header{
-background:white;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:12px 25px;
-position:sticky;
-top:0;
-z-index:1000;
-box-shadow:0 2px 10px rgba(0,0,0,.08);
-flex-wrap:wrap;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 20px;
+  background:white;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
 
-.logo img{
-height:50px;
+header img{
+  height:60px;
 }
 
-/* MENÚ */
+/* BOTON ADMIN */
 
-.menu{
-width:100%;
-display:flex;
-gap:10px;
-justify-content:center;
-margin-top:10px;
-flex-wrap:wrap;
+.adminBtn{
+  background:#222;
+  color:white;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  cursor:pointer;
 }
 
-.menu button{
-background:#eee;
-border:none;
-padding:8px 12px;
-border-radius:20px;
-cursor:pointer;
+/* FILTROS */
+
+.filtros{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  overflow-x:auto;
 }
 
-.menu button.active{
-background:#111;
-color:white;
+.filtros button{
+  border:none;
+  padding:8px 14px;
+  border-radius:20px;
+  background:#ddd;
+  cursor:pointer;
+}
+
+.filtros button.activo{
+  background:black;
+  color:white;
 }
 
 /* BUSCADOR */
 
 .buscador{
-width:100%;
-display:flex;
-justify-content:center;
-margin-top:10px;
+  padding:10px;
+  display:flex;
+  justify-content:center;
 }
 
 .buscador input{
-width:60%;
-max-width:400px;
-padding:10px;
-border-radius:10px;
-border:1px solid #ddd;
+  width:300px;
+  padding:10px;
+  border-radius:20px;
+  border:1px solid #ccc;
 }
 
-/* ADMIN */
-
-.adminBtn{
-display:none;
-}
-
-.adminVisible .adminBtn{
-display:block;
-}
-
-/* CATÁLOGO */
+/* CATALOGO */
 
 .catalogo{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-gap:20px;
-padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:20px;
+  padding:20px;
 }
 
 .producto{
-background:white;
-border-radius:16px;
-overflow:hidden;
-box-shadow:0 4px 15px rgba(0,0,0,.08);
-cursor:pointer;
-position:relative;
-transition:0.2s;
-}
-
-.producto:hover{
-transform:translateY(-5px);
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+  cursor:pointer;
+  position:relative;
 }
 
 .producto img{
-width:100%;
-height:250px;
-object-fit:cover;
+  width:100%;
+  height:230px;
+  object-fit:cover;
 }
 
 .info{
-text-align:center;
-padding:10px;
+  padding:10px;
+  text-align:center;
 }
 
+/* BORRAR */
+
 .deleteBtn{
-position:absolute;
-top:10px;
-left:10px;
-background:red;
-color:white;
-display:none;
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:red;
+  color:white;
+  border:none;
+  border-radius:6px;
+  padding:5px;
+  display:none;
 }
 
 .admin .deleteBtn{
-display:block;
+  display:block;
+}
+
+/* PANEL ADMIN */
+
+.panelAdmin{
+  display:none;
+  padding:20px;
+  background:white;
+  text-align:center;
+}
+
+.panelAdmin input{
+  padding:8px;
+  margin:5px;
+}
+
+.panelAdmin button{
+  padding:10px;
+  margin-top:10px;
 }
 
 /* VISOR */
 
 #visor{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.95);
-display:none;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-z-index:9999;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.9);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  z-index:999;
 }
 
 #visor img{
-max-width:90%;
-max-height:80%;
+  max-width:90%;
+  max-height:70%;
+}
+
+/* BOTONES GALERIA */
+
+.galeriaBtns{
+  margin-top:20px;
+  display:flex;
+  gap:20px;
+}
+
+.galeriaBtns button{
+  padding:10px 20px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
 
 </style>
@@ -155,143 +184,230 @@ max-height:80%;
 <body>
 
 <header>
+  <img src="logo.png">
+  <button class="adminBtn" id="adminBtn">Admin</button>
+</header>
 
-<div class="logo">
-<img src="logo.png">
-</div>
-
-<!-- MENÚ -->
-<div class="menu">
-<button data-cat="argentina" class="active">🇦🇷 Argentina</button>
-<button data-cat="todas">Todas</button>
-<button data-cat="seleccion">Selección Argentina</button>
-<button data-cat="superliga">Superliga Argentina</button>
-<button data-cat="laliga">La Liga</button>
-<button data-cat="premier">Premier</button>
-<button data-cat="seriea">Serie A</button>
-<button data-cat="champions">Champions</button>
+<div class="filtros">
+  <button class="activo">🇦🇷 Argentina</button>
+  <button>Todas</button>
+  <button>Selección Argentina</button>
+  <button>Superliga Argentina</button>
+  <button>La Liga</button>
+  <button>Premier</button>
 </div>
 
 <div class="buscador">
-<input type="text" id="buscador" placeholder="Buscar camiseta">
+  <input type="text" placeholder="Buscar camiseta">
 </div>
 
-<button class="adminBtn" id="adminBtn">Admin</button>
-
-</header>
-
-<div id="panelAdmin" style="display:none;text-align:center;padding:20px;">
-<input id="nombre" placeholder="Nombre"><br><br>
-<input id="categoria" placeholder="Categoria"><br><br>
-<input type="file" id="imagenes" multiple><br><br>
-<button id="addBtn">Añadir</button>
-<button id="guardarBtn">Guardar</button>
+<div id="panelAdmin" class="panelAdmin">
+  <h3>Subir camiseta</h3>
+  <input id="nombre" placeholder="Nombre"><br>
+  <input id="categoria" placeholder="Categoría"><br>
+  <input type="file" id="imagenes" multiple><br>
+  <button id="addBtn">Añadir</button>
 </div>
 
 <div id="catalogo" class="catalogo"></div>
 
+<!-- VISOR -->
+
 <div id="visor">
-<img id="visorImg">
+
+  <img id="visorImg">
+
+  <div class="galeriaBtns">
+    <button id="prevBtn">⬅</button>
+    <button id="nextBtn">➡</button>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-document.addEventListener("DOMContentLoaded",()=>{
-
-const PASSWORD="1234";
-
-const supabase=window.supabase.createClient(
-"https://ycrphtitbjvtkhbartec.supabase.co",
-"sb_publishable_dCPb6B5vx6ev5i9odbOVCA_aMw5nAi8"
+const supabase = window.supabase.createClient(
+  "https://ycrphtitbjvtkhbartec.supabase.co",
+  "sb_publishable_dCPb6B5vx6ev5i9odbOVCA_aMw5nAi8"
 );
 
-let catalogo=[];
-let filtro="argentina";
+let catalogo = [];
+let admin = false;
 
-/* LOGIN ADMIN */
+let fotosActuales = [];
+let fotoIndex = 0;
 
-document.addEventListener("keydown",(e)=>{
-if(e.ctrlKey && e.shiftKey && e.key==="A"){
-const pass=prompt("Password:");
-if(pass===PASSWORD){
-document.body.classList.add("adminVisible");
-}
-}
-});
+/* ADMIN */
 
-/* MENÚ */
+document.getElementById("adminBtn").onclick = () => {
 
-document.querySelectorAll(".menu button").forEach(btn=>{
-btn.onclick=()=>{
-document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
-filtro=btn.dataset.cat;
-render();
+  const pass = prompt("Contraseña admin:");
+
+  if(pass !== "1234") return;
+
+  admin = !admin;
+  document.body.classList.toggle("admin");
+
+  document.getElementById("panelAdmin").style.display =
+    admin ? "block" : "none";
 };
-});
+
+/* AÑADIR */
+
+document.getElementById("addBtn").onclick = () => {
+
+  const nombre = document.getElementById("nombre").value;
+  const categoria = document.getElementById("categoria").value;
+  const files = [...document.getElementById("imagenes").files];
+
+  if(!nombre || !categoria || files.length === 0){
+    alert("Completa todo");
+    return;
+  }
+
+  const nueva = { nombre, categoria, imagenes: [] };
+
+  let cargadas = 0;
+
+  files.forEach(file => {
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+
+      nueva.imagenes.push(e.target.result);
+      cargadas++;
+
+      if(cargadas === files.length){
+        guardar(nueva);
+      }
+
+    };
+
+    reader.readAsDataURL(file);
+
+  });
+
+};
+
+/* GUARDAR */
+
+async function guardar(c){
+
+  const { data } = await supabase
+    .from("camisetas")
+    .insert(c)
+    .select()
+    .single();
+
+  catalogo.push(data);
+  render();
+
+}
+
+/* BORRAR */
+
+async function borrar(id){
+
+  await supabase
+    .from("camisetas")
+    .delete()
+    .eq("id", id);
+
+  catalogo = catalogo.filter(c => c.id !== id);
+  render();
+
+}
+
+/* CARGAR */
+
+async function cargar(){
+
+  const { data } = await supabase
+    .from("camisetas")
+    .select("*");
+
+  catalogo = data || [];
+  render();
+
+}
 
 /* RENDER */
 
 function render(){
 
-const cont=document.getElementById("catalogo");
-cont.innerHTML="";
+  const cont = document.getElementById("catalogo");
+  cont.innerHTML = "";
 
-catalogo.forEach(c=>{
+  catalogo.forEach(c => {
 
-if(filtro==="argentina"){
-if(!(c.categoria==="seleccion" || c.categoria==="superliga")) return;
-}
+    const div = document.createElement("div");
+    div.className = "producto";
 
-if(filtro!=="argentina" && filtro!=="todas" && c.categoria!==filtro) return;
+    div.innerHTML = `
+      <button class="deleteBtn">🗑</button>
+      <img src="${c.imagenes?.[0] || ""}">
+      <div class="info">
+        <b>${c.nombre}</b>
+        <p>${c.categoria}</p>
+      </div>
+    `;
 
-const div=document.createElement("div");
-div.className="producto";
+    /* BORRAR FIX */
+    div.querySelector(".deleteBtn").onclick = (e) => {
+      e.stopPropagation();
+      borrar(c.id);
+    };
 
-div.innerHTML=`
-<img src="${c.imagenes?.[0]||""}">
-<div class="info">
-<h3>${c.nombre}</h3>
+    div.onclick = () => abrirGaleria(c.imagenes);
 
-<a href="https://wa.me/34600000000?text=Hola quiero la camiseta ${encodeURIComponent(c.nombre)}" target="_blank">
-<button>Consultar</button>
-</a>
+    cont.appendChild(div);
 
-</div>
-`;
-
-div.onclick=()=>abrir(c.imagenes);
-
-cont.appendChild(div);
-
-});
+  });
 
 }
 
 /* GALERIA */
 
-function abrir(imgs){
-document.getElementById("visor").style.display="flex";
-document.getElementById("visorImg").src=imgs[0];
+function abrirGaleria(imgs){
+
+  fotosActuales = imgs;
+  fotoIndex = 0;
+
+  mostrarFoto();
+
+  document.getElementById("visor").style.display = "flex";
 }
 
-document.getElementById("visor").onclick=()=>{
-document.getElementById("visor").style.display="none";
+function mostrarFoto(){
+  document.getElementById("visorImg").src = fotosActuales[fotoIndex];
+}
+
+/* BOTONES */
+
+document.getElementById("prevBtn").onclick = (e) => {
+  e.stopPropagation();
+  fotoIndex = (fotoIndex - 1 + fotosActuales.length) % fotosActuales.length;
+  mostrarFoto();
 };
 
-/* CARGAR */
+document.getElementById("nextBtn").onclick = (e) => {
+  e.stopPropagation();
+  fotoIndex = (fotoIndex + 1) % fotosActuales.length;
+  mostrarFoto();
+};
 
-async function cargar(){
-const {data}=await supabase.from("camisetas").select("*");
-catalogo=data||[];
-render();
-}
+/* CERRAR */
+
+document.getElementById("visor").onclick = () => {
+  document.getElementById("visor").style.display = "none";
+};
+
+/* INICIO */
 
 cargar();
-
-});
 
 </script>
 
