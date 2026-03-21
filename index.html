@@ -104,13 +104,6 @@ height:250px;
 object-fit:cover;
 }
 
-.info{
-padding:10px;
-text-align:center;
-}
-
-/* BORRAR */
-
 .deleteBtn{
 position:absolute;
 top:10px;
@@ -118,13 +111,20 @@ left:10px;
 background:red;
 color:white;
 border:none;
-border-radius:6px;
-padding:5px;
+border-radius:50%;
+width:30px;
+height:30px;
+cursor:pointer;
 display:none;
 }
 
 .adminVisible .deleteBtn{
 display:block;
+}
+
+.info{
+padding:10px;
+text-align:center;
 }
 
 /* VISOR */
@@ -139,27 +139,11 @@ background:black;
 display:none;
 align-items:center;
 justify-content:center;
-flex-direction:column;
 }
 
 #visor img{
 max-width:90%;
 max-height:80%;
-}
-
-/* FLECHAS */
-
-.galeriaBtns{
-margin-top:20px;
-display:flex;
-gap:20px;
-}
-
-.galeriaBtns button{
-padding:10px 20px;
-border:none;
-border-radius:8px;
-cursor:pointer;
 }
 
 </style>
@@ -219,12 +203,6 @@ cursor:pointer;
 
 <div id="visor">
 <img id="visorImg">
-
-<div class="galeriaBtns">
-<button id="prevBtn">⬅</button>
-<button id="nextBtn">➡</button>
-</div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -244,11 +222,7 @@ let catalogo=[];
 let filtro="argentina";
 let admin=false;
 
-let fotosActuales=[];
-let fotoIndex=0;
-
 /* LOGIN */
-
 document.addEventListener("keydown",(e)=>{
 if(e.ctrlKey && e.shiftKey && e.key==="A"){
 const pass=prompt("Password:");
@@ -259,14 +233,12 @@ document.body.classList.add("adminVisible");
 });
 
 /* PANEL ADMIN */
-
 document.getElementById("adminBtn").onclick=()=>{
 admin=!admin;
 document.getElementById("panelAdmin").style.display=admin?"block":"none";
 };
 
 /* MENU */
-
 document.querySelectorAll(".menu button").forEach(btn=>{
 btn.onclick=()=>{
 document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
@@ -277,7 +249,6 @@ render();
 });
 
 /* AÑADIR */
-
 document.getElementById("addBtn").onclick=()=>{
 
 const nombre=document.getElementById("nombre").value;
@@ -312,7 +283,6 @@ reader.readAsDataURL(file);
 };
 
 /* GUARDAR */
-
 document.getElementById("guardarBtn").onclick=async()=>{
 
 for(const c of catalogo){
@@ -330,7 +300,8 @@ imagenes:c.imagenes
 .single();
 
 if(error){
-alert("Error guardando");
+console.log(error);
+alert("Error al guardar");
 return;
 }
 
@@ -342,37 +313,37 @@ alert("Guardado");
 
 };
 
-/* BORRAR (ARREGLADO DEFINITIVO) */
-
-async function borrar(id){
+/* BORRAR (🔥 ARREGLADO) */
+async function borrarCamiseta(c){
 
 if(!confirm("¿Borrar camiseta?")) return;
 
-const { error } = await supabase
+if(c.id){
+const {error}=await supabase
 .from("camisetas")
 .delete()
-.eq("id", id);
+.eq("id",c.id);
 
 if(error){
-console.error(error);
-alert("Error al borrar en Supabase");
+console.log(error);
+alert("Error al borrar");
 return;
 }
+}
 
-/* solo si se borra bien */
-catalogo = catalogo.filter(c => c.id !== id);
+/* quitar del array */
+catalogo=catalogo.filter(x=>x!==c);
 
 render();
 
 }
 
 /* CARGAR */
-
 async function cargar(){
 const {data,error}=await supabase.from("camisetas").select("*");
 
 if(error){
-console.error(error);
+console.log(error);
 }
 
 catalogo=data||[];
@@ -380,59 +351,25 @@ render();
 }
 
 /* RENDER */
-
 function render(){
 
 const cont=document.getElementById("catalogo");
 cont.innerHTML="";
 
-/* MODO ARGENTINA */
-if(filtro==="argentina"){
-
-const seleccion=catalogo.filter(c=>c.categoria==="seleccion");
-const superliga=catalogo.filter(c=>c.categoria==="superliga");
-
-if(seleccion.length){
-const t1=document.createElement("h2");
-t1.innerText="🇦🇷 Selección Argentina";
-t1.style.padding="20px";
-cont.appendChild(t1);
-seleccion.forEach(c=>crearProducto(c));
-}
-
-if(superliga.length){
-const t2=document.createElement("h2");
-t2.innerText="🇦🇷 Superliga Argentina";
-t2.style.padding="20px";
-cont.appendChild(t2);
-superliga.forEach(c=>crearProducto(c));
-}
-
-return;
-}
-
-/* RESTO */
-
 catalogo.forEach(c=>{
-if(filtro!=="todas" && c.categoria!==filtro) return;
-crearProducto(c);
-});
 
+if(filtro==="argentina"){
+if(!(c.categoria==="seleccion" || c.categoria==="superliga")) return;
 }
 
-function crearProducto(c){
-
-const cont=document.getElementById("catalogo");
+if(filtro!=="argentina" && filtro!=="todas" && c.categoria!==filtro) return;
 
 const div=document.createElement("div");
 div.className="producto";
 
 div.innerHTML=`
-
 <button class="deleteBtn">🗑</button>
-
 <img src="${c.imagenes?.[0]||""}">
-
 <div class="info">
 <h3>${c.nombre}</h3>
 
@@ -443,48 +380,32 @@ div.innerHTML=`
 </div>
 `;
 
+/* abrir visor */
+div.querySelector("img").onclick=()=>abrir(c.imagenes);
+
+/* borrar */
 div.querySelector(".deleteBtn").onclick=(e)=>{
 e.stopPropagation();
-borrar(c.id);
-};
-
-div.onclick=()=>{
-fotosActuales=c.imagenes;
-fotoIndex=0;
-mostrarFoto();
-document.getElementById("visor").style.display="flex";
+borrarCamiseta(c);
 };
 
 cont.appendChild(div);
 
+});
+
 }
 
-/* GALERIA */
-
-function mostrarFoto(){
-document.getElementById("visorImg").src=fotosActuales[fotoIndex];
+/* VISOR */
+function abrir(imgs){
+document.getElementById("visor").style.display="flex";
+document.getElementById("visorImg").src=imgs[0];
 }
-
-document.getElementById("prevBtn").onclick=(e)=>{
-e.stopPropagation();
-fotoIndex=(fotoIndex-1+fotosActuales.length)%fotosActuales.length;
-mostrarFoto();
-};
-
-document.getElementById("nextBtn").onclick=(e)=>{
-e.stopPropagation();
-fotoIndex=(fotoIndex+1)%fotosActuales.length;
-mostrarFoto();
-};
-
-/* CERRAR */
 
 document.getElementById("visor").onclick=()=>{
 document.getElementById("visor").style.display="none";
 };
 
 /* INICIO */
-
 cargar();
 
 });
