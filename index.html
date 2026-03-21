@@ -18,8 +18,8 @@ background:#f5f7fa;
 header{
 background:white;
 display:flex;
-align-items:center;
 justify-content:space-between;
+align-items:center;
 padding:10px 15px;
 box-shadow:0 2px 10px rgba(0,0,0,.1);
 }
@@ -74,7 +74,7 @@ border-radius:10px;
 border:1px solid #ccc;
 }
 
-/* PANEL ADMIN */
+/* ADMIN */
 
 .panelAdmin{
 display:none;
@@ -150,7 +150,6 @@ background:black;
 display:none;
 align-items:center;
 justify-content:center;
-flex-direction:column;
 }
 
 #visor img{
@@ -161,7 +160,7 @@ max-height:80%;
 .nav{
 position:absolute;
 top:50%;
-font-size:30px;
+font-size:40px;
 color:white;
 cursor:pointer;
 user-select:none;
@@ -201,9 +200,9 @@ user-select:none;
 
 <h3>Subir camiseta</h3>
 
-<input id="nombre" placeholder="Nombre"><br><br>
+<input id="nombreInput" placeholder="Nombre"><br><br>
 
-<select id="categoria">
+<select id="categoriaInput">
 <option value="seleccion">Selección Argentina</option>
 <option value="superliga">Superliga Argentina</option>
 <option value="laliga">La Liga</option>
@@ -211,9 +210,9 @@ user-select:none;
 <option value="seriea">Serie A</option>
 </select><br><br>
 
-<label><input type="checkbox" id="novedad"> Es novedad</label><br><br>
+<label><input type="checkbox" id="novedad"> Novedad</label><br><br>
 
-<input type="file" id="imagenes" multiple><br><br>
+<input type="file" id="imagenesInput" multiple><br><br>
 
 <button id="addBtn">Añadir</button>
 <button id="guardarBtn">Guardar</button>
@@ -241,7 +240,6 @@ const supabase=window.supabase.createClient(
 
 let catalogo=[];
 let filtro="home";
-let admin=false;
 let currentImgs=[];
 let currentIndex=0;
 
@@ -256,8 +254,7 @@ document.body.classList.add("adminVisible");
 
 /* ADMIN PANEL */
 adminBtn.onclick=()=>{
-admin=!admin;
-panelAdmin.style.display=admin?"block":"none";
+panelAdmin.style.display = panelAdmin.style.display==="block" ? "none" : "block";
 };
 
 /* MENU */
@@ -272,10 +269,16 @@ render();
 
 /* ADD */
 addBtn.onclick=()=>{
-const nombre=nombre.value;
-const categoria=categoria.value;
+
+const nombre=document.getElementById("nombreInput").value;
+const categoria=document.getElementById("categoriaInput").value;
 const novedad=document.getElementById("novedad").checked;
-const files=[...imagenes.files];
+const files=[...document.getElementById("imagenesInput").files];
+
+if(!nombre || files.length===0){
+alert("Faltan datos");
+return;
+}
 
 const nueva={nombre,categoria,novedad,imagenes:[]};
 catalogo.push(nueva);
@@ -295,9 +298,15 @@ guardarBtn.onclick=async()=>{
 for(const c of catalogo){
 if(c.id) continue;
 
-const {data}=await supabase.from("camisetas")
+const {data,error}=await supabase.from("camisetas")
 .insert(c)
 .select().single();
+
+if(error){
+console.log(error);
+alert("Error al guardar");
+return;
+}
 
 c.id=data.id;
 }
@@ -315,7 +324,8 @@ render();
 
 /* LOAD */
 async function cargar(){
-const {data}=await supabase.from("camisetas").select("*");
+const {data,error}=await supabase.from("camisetas").select("*");
+if(error) console.log(error);
 catalogo=data||[];
 render();
 }
@@ -323,11 +333,13 @@ render();
 /* RENDER */
 function render(){
 
-catalogo.sort((a,b)=>b.novedad - a.novedad);
+catalogo.sort((a,b)=>(b.novedad?1:0)-(a.novedad?1:0));
 
 catalogoEl.innerHTML="";
 
 catalogo.forEach(c=>{
+
+if(!c.imagenes || c.imagenes.length===0) return;
 
 if(filtro==="home"){
 if(!c.novedad && c.categoria!=="seleccion" && c.categoria!=="superliga") return;
@@ -344,7 +356,7 @@ div.className="producto";
 
 div.innerHTML=`
 <button class="deleteBtn">🗑</button>
-<img src="${c.imagenes?.[0]||""}">
+<img src="${c.imagenes[0]}">
 <div class="info">
 <b>${c.nombre}</b>
 <button class="whatsapp">Consultar</button>
@@ -368,30 +380,39 @@ catalogoEl.appendChild(div);
 
 }
 
-/* VISOR PRO */
+/* VISOR */
 function abrir(imgs){
+if(!imgs || imgs.length===0) return;
+
 currentImgs=imgs;
 currentIndex=0;
-visor.style.display="flex";
+
+document.getElementById("visor").style.display="flex";
 mostrar();
 }
 
 function mostrar(){
-visorImg.src=currentImgs[currentIndex];
+document.getElementById("visorImg").src=currentImgs[currentIndex];
 }
 
-document.querySelector(".next").onclick=()=>{
+document.querySelector(".next").onclick=(e)=>{
+e.stopPropagation();
+if(currentImgs.length<=1) return;
 currentIndex=(currentIndex+1)%currentImgs.length;
 mostrar();
 };
 
-document.querySelector(".prev").onclick=()=>{
+document.querySelector(".prev").onclick=(e)=>{
+e.stopPropagation();
+if(currentImgs.length<=1) return;
 currentIndex=(currentIndex-1+currentImgs.length)%currentImgs.length;
 mostrar();
 };
 
 visor.onclick=(e)=>{
-if(e.target===visor) visor.style.display="none";
+if(e.target.id==="visor"){
+visor.style.display="none";
+}
 };
 
 /* INIT */
