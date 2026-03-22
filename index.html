@@ -8,31 +8,27 @@
 <style>
 
 body{
-margin:0;
 font-family:Arial;
+margin:0;
 background:#f5f7fa;
 }
 
+/* HEADER */
+
 header{
 background:white;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:10px 15px;
-box-shadow:0 2px 10px rgba(0,0,0,.1);
+padding:10px;
+text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
 
-.logo img{
-height:45px;
+/* LOGO */
+
+header img{
+height:60px;
 }
 
-.adminBtn{
-display:none;
-}
-
-.adminVisible .adminBtn{
-display:block;
-}
+/* MENU */
 
 .menu{
 display:flex;
@@ -55,31 +51,35 @@ background:black;
 color:white;
 }
 
-.buscador{
-padding:10px;
-background:white;
+/* ADMIN */
+
+.adminBtn{
+display:none;
+margin-top:10px;
 }
 
-.buscador input{
-width:100%;
-padding:10px;
-border-radius:10px;
-border:1px solid #ccc;
+.adminVisible .adminBtn{
+display:inline-block;
 }
+
+/* PANEL ADMIN */
 
 .panelAdmin{
 display:none;
 background:white;
-margin:15px;
 padding:20px;
+margin:20px;
 border-radius:10px;
+text-align:center;
 }
+
+/* GRID */
 
 .catalogo{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
-gap:15px;
-padding:15px;
+grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+gap:20px;
+padding:20px;
 }
 
 .producto{
@@ -87,13 +87,21 @@ background:white;
 border-radius:10px;
 overflow:hidden;
 position:relative;
+cursor:pointer;
 }
 
 .producto img{
 width:100%;
-height:200px;
+height:250px;
 object-fit:cover;
 }
+
+.info{
+padding:10px;
+text-align:center;
+}
+
+/* BORRAR */
 
 .deleteBtn{
 position:absolute;
@@ -102,9 +110,8 @@ left:10px;
 background:red;
 color:white;
 border:none;
-border-radius:50%;
-width:28px;
-height:28px;
+border-radius:6px;
+padding:5px;
 display:none;
 }
 
@@ -112,20 +119,7 @@ display:none;
 display:block;
 }
 
-.info{
-padding:10px;
-text-align:center;
-}
-
-.whatsapp{
-background:#25D366;
-color:white;
-border:none;
-padding:8px;
-border-radius:8px;
-margin-top:5px;
-width:100%;
-}
+/* VISOR */
 
 #visor{
 position:fixed;
@@ -137,6 +131,7 @@ background:black;
 display:none;
 align-items:center;
 justify-content:center;
+flex-direction:column;
 }
 
 #visor img{
@@ -145,15 +140,11 @@ max-height:80%;
 }
 
 .nav{
-position:absolute;
-top:50%;
-font-size:40px;
 color:white;
+font-size:30px;
 cursor:pointer;
+margin:10px;
 }
-
-.prev{left:20px;}
-.next{right:20px;}
 
 </style>
 </head>
@@ -161,9 +152,7 @@ cursor:pointer;
 <body>
 
 <header>
-<div class="logo">
 <img src="logo.png">
-</div>
 <button id="adminBtn" class="adminBtn">Admin</button>
 </header>
 
@@ -173,31 +162,23 @@ cursor:pointer;
 <button data-cat="seleccion">Selección</button>
 <button data-cat="superliga">Superliga</button>
 <button data-cat="laliga">La Liga</button>
-<button data-cat="premier">Premier</button>
-<button data-cat="seriea">Serie A</button>
-</div>
-
-<div class="buscador">
-<input id="buscador" placeholder="Buscar camiseta">
 </div>
 
 <div id="panelAdmin" class="panelAdmin">
 
 <h3>Subir camiseta</h3>
 
-<input id="nombreInput" placeholder="Nombre"><br><br>
+<input id="nombre" placeholder="Nombre"><br><br>
 
-<select id="categoriaInput">
+<select id="categoria">
 <option value="seleccion">Selección Argentina</option>
 <option value="superliga">Superliga Argentina</option>
 <option value="laliga">La Liga</option>
-<option value="premier">Premier</option>
-<option value="seriea">Serie A</option>
 </select><br><br>
 
 <label><input type="checkbox" id="novedad"> Novedad</label><br><br>
 
-<input type="file" id="imagenesInput" multiple><br><br>
+<input type="file" id="imagenes" multiple><br><br>
 
 <button id="addBtn">Añadir</button>
 <button id="guardarBtn">Guardar</button>
@@ -207,9 +188,9 @@ cursor:pointer;
 <div id="catalogo" class="catalogo"></div>
 
 <div id="visor">
-<span class="nav prev">❮</span>
+<span class="nav" id="prev">⬅</span>
 <img id="visorImg">
-<span class="nav next">❯</span>
+<span class="nav" id="next">➡</span>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -227,26 +208,22 @@ const supabase=window.supabase.createClient(
 
 let catalogo=[];
 let filtro="home";
-let currentImgs=[];
-let currentIndex=0;
+let imgs=[];
+let index=0;
 
-/* ELEMENTOS */
-const adminBtn=document.getElementById("adminBtn");
-const panelAdmin=document.getElementById("panelAdmin");
-const catalogoEl=document.getElementById("catalogo");
-
-/* LOGIN */
+/* ADMIN LOGIN */
 document.addEventListener("keydown",(e)=>{
-if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==="a"){
+if(e.ctrlKey && e.shiftKey && e.key==="A"){
 if(prompt("Password:")===PASSWORD){
 document.body.classList.add("adminVisible");
 }
 }
 });
 
-/* ADMIN PANEL */
-adminBtn.onclick=()=>{
-panelAdmin.style.display = panelAdmin.style.display==="block" ? "none" : "block";
+/* PANEL ADMIN */
+document.getElementById("adminBtn").onclick=()=>{
+const panel=document.getElementById("panelAdmin");
+panel.style.display=panel.style.display==="block"?"none":"block";
 };
 
 /* MENU */
@@ -262,12 +239,12 @@ render();
 /* ADD */
 document.getElementById("addBtn").onclick=()=>{
 
-const nombre=document.getElementById("nombreInput").value;
-const categoria=document.getElementById("categoriaInput").value;
+const nombre=document.getElementById("nombre").value;
+const categoria=document.getElementById("categoria").value;
 const novedad=document.getElementById("novedad").checked;
-const files=[...document.getElementById("imagenesInput").files];
+const files=[...document.getElementById("imagenes").files];
 
-if(!nombre || files.length===0){
+if(!nombre||files.length===0){
 alert("Faltan datos");
 return;
 }
@@ -283,6 +260,7 @@ render();
 };
 reader.readAsDataURL(file);
 });
+
 };
 
 /* SAVE */
@@ -296,7 +274,7 @@ const {data,error}=await supabase.from("camisetas")
 
 if(error){
 console.log(error);
-alert("Error al guardar");
+alert("Error");
 return;
 }
 
@@ -316,8 +294,7 @@ render();
 
 /* LOAD */
 async function cargar(){
-const {data,error}=await supabase.from("camisetas").select("*");
-if(error) console.log(error);
+const {data}=await supabase.from("camisetas").select("*");
 catalogo=data||[];
 render();
 }
@@ -325,11 +302,10 @@ render();
 /* RENDER */
 function render(){
 
-catalogoEl.innerHTML="";
+const cont=document.getElementById("catalogo");
+cont.innerHTML="";
 
 catalogo.forEach(c=>{
-
-if(!c.imagenes || c.imagenes.length===0) return;
 
 if(filtro==="home"){
 if(!c.novedad && c.categoria!=="seleccion" && c.categoria!=="superliga") return;
@@ -346,60 +322,49 @@ div.className="producto";
 
 div.innerHTML=`
 <button class="deleteBtn">🗑</button>
-<img src="${c.imagenes[0]}">
+<img src="${c.imagenes?.[0]||""}">
 <div class="info">
-<b>${c.nombre}</b>
-<button class="whatsapp">Consultar</button>
+<h3>${c.nombre}</h3>
 </div>
 `;
-
-div.querySelector("img").onclick=()=>abrir(c.imagenes);
 
 div.querySelector(".deleteBtn").onclick=(e)=>{
 e.stopPropagation();
 borrar(c);
 };
 
-div.querySelector(".whatsapp").onclick=()=>{
-window.open(`https://wa.me/34600000000?text=Hola quiero ${c.nombre}`);
+div.onclick=()=>{
+imgs=c.imagenes;
+index=0;
+mostrar();
+document.getElementById("visor").style.display="flex";
 };
 
-catalogoEl.appendChild(div);
+cont.appendChild(div);
 
 });
 
 }
 
 /* VISOR */
-function abrir(imgs){
-currentImgs=imgs;
-currentIndex=0;
-document.getElementById("visor").style.display="flex";
-mostrar();
-}
-
 function mostrar(){
-document.getElementById("visorImg").src=currentImgs[currentIndex];
+document.getElementById("visorImg").src=imgs[index];
 }
 
-document.querySelector(".next").onclick=(e)=>{
+document.getElementById("prev").onclick=(e)=>{
 e.stopPropagation();
-if(currentImgs.length<=1) return;
-currentIndex=(currentIndex+1)%currentImgs.length;
+index=(index-1+imgs.length)%imgs.length;
 mostrar();
 };
 
-document.querySelector(".prev").onclick=(e)=>{
+document.getElementById("next").onclick=(e)=>{
 e.stopPropagation();
-if(currentImgs.length<=1) return;
-currentIndex=(currentIndex-1+currentImgs.length)%currentImgs.length;
+index=(index+1)%imgs.length;
 mostrar();
 };
 
-document.getElementById("visor").onclick=(e)=>{
-if(e.target.id==="visor"){
-e.currentTarget.style.display="none";
-}
+document.getElementById("visor").onclick=()=>{
+document.getElementById("visor").style.display="none";
 };
 
 /* INIT */
