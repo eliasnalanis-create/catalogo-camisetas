@@ -13,8 +13,6 @@ font-family:Arial;
 background:#f5f7fa;
 }
 
-/* HEADER */
-
 header{
 background:white;
 display:flex;
@@ -36,8 +34,6 @@ display:none;
 display:block;
 }
 
-/* MENU */
-
 .menu{
 display:flex;
 gap:10px;
@@ -47,7 +43,6 @@ background:white;
 }
 
 .menu button{
-flex:none;
 padding:8px 12px;
 border:none;
 border-radius:20px;
@@ -59,8 +54,6 @@ cursor:pointer;
 background:black;
 color:white;
 }
-
-/* BUSCADOR */
 
 .buscador{
 padding:10px;
@@ -74,8 +67,6 @@ border-radius:10px;
 border:1px solid #ccc;
 }
 
-/* ADMIN */
-
 .panelAdmin{
 display:none;
 background:white;
@@ -83,8 +74,6 @@ margin:15px;
 padding:20px;
 border-radius:10px;
 }
-
-/* GRID */
 
 .catalogo{
 display:grid;
@@ -138,8 +127,6 @@ margin-top:5px;
 width:100%;
 }
 
-/* VISOR */
-
 #visor{
 position:fixed;
 top:0;
@@ -163,7 +150,6 @@ top:50%;
 font-size:40px;
 color:white;
 cursor:pointer;
-user-select:none;
 }
 
 .prev{left:20px;}
@@ -178,7 +164,6 @@ user-select:none;
 <div class="logo">
 <img src="logo.png">
 </div>
-
 <button id="adminBtn" class="adminBtn">Admin</button>
 </header>
 
@@ -231,6 +216,8 @@ user-select:none;
 
 <script>
 
+document.addEventListener("DOMContentLoaded",()=>{
+
 const PASSWORD="1234";
 
 const supabase=window.supabase.createClient(
@@ -243,9 +230,14 @@ let filtro="home";
 let currentImgs=[];
 let currentIndex=0;
 
+/* ELEMENTOS */
+const adminBtn=document.getElementById("adminBtn");
+const panelAdmin=document.getElementById("panelAdmin");
+const catalogoEl=document.getElementById("catalogo");
+
 /* LOGIN */
 document.addEventListener("keydown",(e)=>{
-if(e.ctrlKey && e.shiftKey && e.key==="A"){
+if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==="a"){
 if(prompt("Password:")===PASSWORD){
 document.body.classList.add("adminVisible");
 }
@@ -268,7 +260,7 @@ render();
 });
 
 /* ADD */
-addBtn.onclick=()=>{
+document.getElementById("addBtn").onclick=()=>{
 
 const nombre=document.getElementById("nombreInput").value;
 const categoria=document.getElementById("categoriaInput").value;
@@ -294,7 +286,7 @@ reader.readAsDataURL(file);
 };
 
 /* SAVE */
-guardarBtn.onclick=async()=>{
+document.getElementById("guardarBtn").onclick=async()=>{
 for(const c of catalogo){
 if(c.id) continue;
 
@@ -332,8 +324,6 @@ render();
 
 /* RENDER */
 function render(){
-
-catalogo.sort((a,b)=>(b.novedad?1:0)-(a.novedad?1:0));
 
 catalogoEl.innerHTML="";
 
@@ -382,11 +372,8 @@ catalogoEl.appendChild(div);
 
 /* VISOR */
 function abrir(imgs){
-if(!imgs || imgs.length===0) return;
-
 currentImgs=imgs;
 currentIndex=0;
-
 document.getElementById("visor").style.display="flex";
 mostrar();
 }
@@ -409,15 +396,16 @@ currentIndex=(currentIndex-1+currentImgs.length)%currentImgs.length;
 mostrar();
 };
 
-visor.onclick=(e)=>{
+document.getElementById("visor").onclick=(e)=>{
 if(e.target.id==="visor"){
-visor.style.display="none";
+e.currentTarget.style.display="none";
 }
 };
 
 /* INIT */
-const catalogoEl=document.getElementById("catalogo");
 cargar();
+
+});
 
 </script>
 
